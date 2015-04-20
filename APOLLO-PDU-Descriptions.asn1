@@ -1,0 +1,176 @@
+-- **************************************************************
+--
+-- Apollo PDU Descriptions.
+--
+-- **************************************************************
+APOLLO-PDU-Descriptions {
+}
+
+DEFINITIONS AUTOMATIC TAGS ::=
+
+BEGIN
+
+APOLLO-PDU	    ::= SEQUENCE {
+    version		INTEGER (0..127),
+    transactionId	INTEGER (0..65535),
+    procedure		Procedure
+}
+
+Procedure	    ::= CHOICE {
+    connectionRequest	ConnectionRequest,
+    connectionResponse	ConnectionResponse,
+    createTable		CreateTable,
+    deleteTable		DeleteTable,
+    openTable		OpenTable,
+    closeTable		CloseTable,
+    read		Read,
+    write		Write,
+    delete		Delete,
+    readRange		ReadRange,
+    batchWrite		BatchWrite
+}
+
+-- **************************************************************
+--
+-- Apollo Procedure Definitions.
+--
+-- **************************************************************
+BatchWrite	    ::= SEQUENCE {
+    tableName		FieldName,
+    deleteKeys		SEQUENCE OF Key,
+    writeKvps		SEQUENCE OF KeyColumnsPair
+}
+
+CloseTable	    ::= SEQUENCE {
+    tableName		FieldName
+}
+
+ConnectionRequest   ::= SEQUENCE {
+    dummy		INTEGER
+}
+
+ConnectionResponse  ::= SEQUENCE {
+    dummy		INTEGER
+}
+
+CreateTable	    ::= SEQUENCE {
+    tableName		FieldName,
+    keys		SEQUENCE OF FieldName,
+    columns		SEQUENCE OF FieldName,
+    indexes		SEQUENCE OF FieldName,
+    tableOptions	SEQUENCE OF TableOption
+}
+
+
+Delete		    ::= SEQUENCE {
+    tableName		FieldName,
+    key			Key
+}
+
+DeleteTable	    ::= SEQUENCE {
+    tableName		FieldName
+}
+
+OpenTable	    ::= SEQUENCE {
+    tableName		FieldName
+}
+
+Read		   ::=	SEQUENCE {
+    tableName		FieldName,
+    key			Key
+}
+
+ReadRange	    ::= SEQUENCE {
+    tableName		FieldName,
+    keyRange		KeyRange,
+    limit		INTEGER
+}
+
+Response	    ::= SEQUENCE {
+    result		Result,
+    moreDataToBeSent	BOOLEAN
+}
+
+Result		    ::= SEQUENCE { 
+    error		Error OPTIONAL
+}
+
+Write		    ::= SEQUENCE {
+    tableName		FieldName,
+    key			Key,
+    columns		Columns
+}
+
+-- **************************************************************
+--
+-- Common IE Definitions.
+--
+-- **************************************************************
+
+Backend		    ::= ENUMERATED {
+    leveldb		(0),
+    etsLeveldb		(1)
+}
+
+Columns		    ::= SEQUENCE OF Field
+
+DataModel	    ::= ENUMERATED {
+    binary		(0),
+    array		(1),
+    hash		(2)
+}
+
+Error		    ::= CHOICE {
+    transport		IA5String (SIZE(1..64)),
+    protocol		IA5String (SIZE(1..64)),
+    system		IA5String (SIZE(1..64)),
+    misc		IA5String (SIZE(1..64))
+}
+
+Field		    ::= SEQUENCE {
+    name		FieldName,
+    value		Value
+}
+
+-- Limit Fieldname Chars to (a..z)
+FieldName	    ::= IA5String (SIZE(1..128))
+
+FileMargin	    ::= INTEGER (1..128)
+
+Key		    ::= SEQUENCE OF Field
+
+KeyRange	    ::= SEQUENCE {
+    start		Key,
+    end			Key
+}
+
+KeyColumnsPair	    ::= SEQUENCE {
+    key			Key,
+    columns		Columns
+}
+
+TableOption	    ::= CHOICE {
+    timeOrdered		BOOLEAN,
+    wrapped		Wrapper,
+    backend		Backend
+}
+
+TimeMargin	    ::= INTEGER (0..4294967295)
+
+Value		    ::= OCTET STRING
+
+Wrapper		    ::= SEQUENCE {
+    fileMargin		FileMargin,
+    timeMargin		TimeMargin
+}
+
+maxNumOfKeyFields   INTEGER ::= 16
+
+maxNumOfColumns	    INTEGER ::= 255
+
+maxNumOfIndexes	    INTEGER ::= 8
+
+--ProcedureCode	    ::= INTEGER (0..255)
+
+END
+
