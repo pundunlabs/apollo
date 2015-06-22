@@ -11,23 +11,33 @@ DEFINITIONS AUTOMATIC TAGS ::=
 BEGIN
 
 APOLLO-PDU	    ::= SEQUENCE {
-    version		INTEGER (0..127),
+    version		Version,
     transactionId	INTEGER (0..65535),
-    procedure		Procedure
+    procedure		Procedure,
+    ...
 }
 
 Procedure	    ::= CHOICE {
-    connectionRequest	ConnectionRequest,
-    connectionResponse	ConnectionResponse,
+    authExchange	AuthExchange,
+    error		Error,
+    response		Response,
     createTable		CreateTable,
     deleteTable		DeleteTable,
     openTable		OpenTable,
     closeTable		CloseTable,
+    tableInfo		TableInfo,
     read		Read,
     write		Write,
     delete		Delete,
     readRange		ReadRange,
-    batchWrite		BatchWrite
+    readRangeN		ReadRangeN,
+    batchWrite		BatchWrite,
+    first		First,
+    last		Last,
+    seek		Seek,
+    next		Next,
+    prev		Prev,
+    ...
 }
 
 -- **************************************************************
@@ -35,22 +45,21 @@ Procedure	    ::= CHOICE {
 -- Apollo Procedure Definitions.
 --
 -- **************************************************************
+AuthExchange	    ::= SEQUENCE {
+    payload		OCTET STRING,
+    ...
+}
+
 BatchWrite	    ::= SEQUENCE {
     tableName		FieldName,
     deleteKeys		SEQUENCE OF Key,
-    writeKvps		SEQUENCE OF KeyColumnsPair
+    writeKvps		SEQUENCE OF KeyColumnsPair,
+    ...
 }
 
 CloseTable	    ::= SEQUENCE {
-    tableName		FieldName
-}
-
-ConnectionRequest   ::= SEQUENCE {
-    dummy		INTEGER
-}
-
-ConnectionResponse  ::= SEQUENCE {
-    dummy		INTEGER
+    tableName		FieldName,
+    ...
 }
 
 CreateTable	    ::= SEQUENCE {
@@ -58,47 +67,120 @@ CreateTable	    ::= SEQUENCE {
     keys		SEQUENCE OF FieldName,
     columns		SEQUENCE OF FieldName,
     indexes		SEQUENCE OF FieldName,
-    tableOptions	SEQUENCE OF TableOption
+    tableOptions	SET OF TableOption,
+    ...
+
 }
 
 
 Delete		    ::= SEQUENCE {
     tableName		FieldName,
-    key			Key
+    key			Key,
+    ...
+
 }
 
 DeleteTable	    ::= SEQUENCE {
-    tableName		FieldName
+    tableName		FieldName,
+    ...
+
+}
+
+Error		    ::= SEQUENCE {
+    cause		Cause OPTIONAL,
+    ...
+
 }
 
 OpenTable	    ::= SEQUENCE {
-    tableName		FieldName
+    tableName		FieldName,
+    ...
+
 }
 
 Read		   ::=	SEQUENCE {
     tableName		FieldName,
-    key			Key
+    key			Key,
+    ...
+
 }
 
 ReadRange	    ::= SEQUENCE {
     tableName		FieldName,
     keyRange		KeyRange,
-    limit		INTEGER
+    limit		INTEGER,
+    ...
+
+}
+
+ReadRangeN	    ::= SEQUENCE {
+    tableName		FieldName,
+    startKey		Key,
+    n			INTEGER,
+    ...
+
 }
 
 Response	    ::= SEQUENCE {
-    result		Result,
-    moreDataToBeSent	BOOLEAN
+    result		Result OPTIONAL,
+    moreDataToBeSent	BOOLEAN OPTIONAL,
+    ...
+
 }
 
-Result		    ::= SEQUENCE { 
-    error		Error OPTIONAL
+Result		    ::= CHOICE {
+    value		Value,
+    keyValuePair	KeyValuePair,
+    keyValueList	SET OF KeyValuePair,
+    kvpIt		KvpIt,
+    ...
+
+}
+
+TableInfo	    ::= SEQUENCE {
+    tableName           FieldName,
+    attributes		SET OF FieldName OPTIONAL,
+    ...
+
 }
 
 Write		    ::= SEQUENCE {
     tableName		FieldName,
     key			Key,
-    columns		Columns
+    columns		Columns,
+    ...
+
+}
+
+First		    ::= SEQUENCE {
+    tableName		FieldName,
+    ...
+
+}
+
+Last		    ::= SEQUENCE {
+    tableName		FieldName,
+    ...
+
+}
+
+Seek		    ::= SEQUENCE {
+    tableName		FieldName,
+    key			Key,
+    ...
+
+}
+
+Next		    ::= SEQUENCE {
+    it			It,
+    ...
+
+}
+
+Prev		    ::= SEQUENCE {
+    it			It,
+    ...
+
 }
 
 -- **************************************************************
@@ -107,9 +189,11 @@ Write		    ::= SEQUENCE {
 --
 -- **************************************************************
 
-Backend		    ::= ENUMERATED {
+Type		    ::= ENUMERATED {
     leveldb		(0),
-    etsLeveldb		(1)
+    etsLeveldb		(1),
+    ...
+
 }
 
 Columns		    ::= SEQUENCE OF Field
@@ -117,23 +201,29 @@ Columns		    ::= SEQUENCE OF Field
 DataModel	    ::= ENUMERATED {
     binary		(0),
     array		(1),
-    hash		(2)
+    set			(2),
+    ...
+
 }
 
-Error		    ::= CHOICE {
-    transport		IA5String (SIZE(1..64)),
-    protocol		IA5String (SIZE(1..64)),
-    system		IA5String (SIZE(1..64)),
-    misc		IA5String (SIZE(1..64))
+Cause		    ::= CHOICE {
+    transport		IA5String (SIZE(1..32)),
+    protocol		IA5String (SIZE(1..32)),
+    system		IA5String (SIZE(1..32)),
+    misc		IA5String (SIZE(1..32)),
+    ...
+
 }
 
 Field		    ::= SEQUENCE {
     name		FieldName,
-    value		Value
+    value		Value,
+    ...
+
 }
 
 -- Limit Fieldname Chars to (a..z)
-FieldName	    ::= IA5String (SIZE(1..128))
+FieldName	    ::= IA5String (SIZE(1..16))
 
 FileMargin	    ::= INTEGER (1..128)
 
@@ -141,27 +231,57 @@ Key		    ::= SEQUENCE OF Field
 
 KeyRange	    ::= SEQUENCE {
     start		Key,
-    end			Key
+    end			Key,
+    ...
+
 }
 
 KeyColumnsPair	    ::= SEQUENCE {
     key			Key,
-    columns		Columns
+    columns		Columns,
+    ...
+
 }
+
+KeyValuePair	    ::= SEQUENCE {
+    key			Key,
+    value		Value
+
+}
+
+KvpIt		    ::= SEQUENCE {
+    keyValuePair	KeyValuePair,
+    it			It,
+    ...
+
+}
+
+It		    ::= OCTET STRING
 
 TableOption	    ::= CHOICE {
     timeOrdered		BOOLEAN,
     wrapped		Wrapper,
-    backend		Backend
+    type		Type,
+    ...
+
 }
 
 TimeMargin	    ::= INTEGER (0..4294967295)
 
 Value		    ::= OCTET STRING
 
+Version		    ::= SEQUENCE {
+    major		INTEGER (0..15),
+    minor		INTEGER (0..15),
+    ...
+
+}
+
 Wrapper		    ::= SEQUENCE {
     fileMargin		FileMargin,
-    timeMargin		TimeMargin
+    timeMargin		TimeMargin,
+    ...
+
 }
 
 maxNumOfKeyFields   INTEGER ::= 16
@@ -173,4 +293,3 @@ maxNumOfIndexes	    INTEGER ::= 8
 --ProcedureCode	    ::= INTEGER (0..255)
 
 END
-
