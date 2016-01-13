@@ -3,8 +3,8 @@
 -- Apollo PDU Descriptions.
 --
 -- **************************************************************
-APOLLO-PDU-Descriptions {
-}
+APOLLO-PDU-Descriptions
+
 
 DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -129,10 +129,11 @@ Response	    ::= SEQUENCE {
 }
 
 Result		    ::= CHOICE {
-    value		Value,
-    keyValuePair	KeyValuePair,
-    keyValueList	SET OF KeyValuePair,
-    kvpIt		KvpIt,
+    columns		Columns,
+    keyColumnsPair	KeyColumnsPair,
+    keyColumnsList	KeyColumnsList,
+    propList		SET OF Field,
+    kcpIt		KcpIt,
     ...
 
 }
@@ -189,28 +190,39 @@ Prev		    ::= SEQUENCE {
 --
 -- **************************************************************
 
-Type		    ::= ENUMERATED {
-    leveldb		(0),
-    etsLeveldb		(1),
+Columns		    ::= SEQUENCE (SIZE (1..maxNumOfColumns)) OF Field
+
+Cause		    ::= CHOICE {
+    transport		IA5String (SIZE(1..maxCauseLength)),
+    protocol		IA5String (SIZE(1..maxCauseLength)),
+    system		IA5String (SIZE(1..maxCauseLength)),
+    misc		IA5String (SIZE(1..maxCauseLength)),
     ...
 
 }
 
-Columns		    ::= SEQUENCE OF Field
+Cluster		    ::= SEQUENCE {
+    name		IA5String,
+    replicationFactor	INTEGER (1..16),
+    ...
+}
+
+Comparator	    ::= ENUMERATED {
+    descending		(0),
+    ascending		(1),
+    ...
+}
+
+Continuation	    ::= SEQUENCE {
+    complete		BOOLEAN,
+    key			Key OPTIONAL,
+    ...
+}
 
 DataModel	    ::= ENUMERATED {
     binary		(0),
     array		(1),
-    set			(2),
-    ...
-
-}
-
-Cause		    ::= CHOICE {
-    transport		IA5String (SIZE(1..32)),
-    protocol		IA5String (SIZE(1..32)),
-    system		IA5String (SIZE(1..32)),
-    misc		IA5String (SIZE(1..32)),
+    hash	    	(2),
     ...
 
 }
@@ -223,11 +235,9 @@ Field		    ::= SEQUENCE {
 }
 
 -- Limit Fieldname Chars to (a..z)
-FieldName	    ::= IA5String (SIZE(1..16))
+FieldName	    ::= IA5String (SIZE(1..64))
 
-FileMargin	    ::= INTEGER (1..128)
-
-Key		    ::= SEQUENCE OF Field
+Key		    ::= SEQUENCE (SIZE (1..maxNumOfKeyFields)) OF Field
 
 KeyRange	    ::= SEQUENCE {
     start		Key,
@@ -243,32 +253,63 @@ KeyColumnsPair	    ::= SEQUENCE {
 
 }
 
-KeyValuePair	    ::= SEQUENCE {
-    key			Key,
-    value		Value
-
+KeyColumnsList	    ::= SEQUENCE {
+    list		SET OF KeyColumnsPair,
+    continuation	Continuation OPTIONAL,
+    ...
 }
 
-KvpIt		    ::= SEQUENCE {
-    keyValuePair	KeyValuePair,
+KcpIt		    ::= SEQUENCE {
+    keyColumnsPair	KeyColumnsPair,
     it			It,
     ...
 
 }
 
-It		    ::= OCTET STRING
+It		    ::= OCTET STRING (SIZE(1..512))
+
+SizeMargin	    ::= CHOICE {
+    megabytes		INTEGER,
+    ...
+}
 
 TableOption	    ::= CHOICE {
-    timeOrdered		BOOLEAN,
-    wrapped		Wrapper,
     type		Type,
+    dataModel		DataModel,
+    wrapper		Wrapper,
+    memWrapper		Wrapper,
+    comparator		Comparator,
+    timeSeries		BOOLEAN,
+    shards		INTEGER (1..8192),
+    clusters		SET OF Cluster (SIZE(1..16)),
+    ...
+}
+
+TimeMargin	    ::= CHOICE {
+    seconds		INTEGER,
+    minutes		INTEGER,
+    hours		INTEGER,
+    ...
+}
+
+Type		    ::= ENUMERATED {
+    leveldb		(0),
+    etsLeveldb		(1),
+    leveldbWrapped	(2),
+    etsLeveldbWrapped	(3),
     ...
 
 }
 
-TimeMargin	    ::= INTEGER (0..4294967295)
-
-Value		    ::= OCTET STRING
+Value		    ::= CHOICE {
+    bool		BOOLEAN,
+    int			INTEGER,
+    binary		OCTET STRING,
+    null		NULL,
+    double		OCTET STRING (SIZE(8)),
+    string		UTF8String,
+    ...
+}
 
 Version		    ::= SEQUENCE {
     major		INTEGER (0..15),
@@ -278,18 +319,19 @@ Version		    ::= SEQUENCE {
 }
 
 Wrapper		    ::= SEQUENCE {
-    fileMargin		FileMargin,
-    timeMargin		TimeMargin,
+    numOfBuckets	INTEGER (1..100000),
+    timeMargin		TimeMargin OPTIONAL,
+    sizeMargin		SizeMargin OPTIONAL,
     ...
 
 }
 
-maxNumOfKeyFields   INTEGER ::= 16
+maxNumOfKeyFields   INTEGER ::= 100
 
-maxNumOfColumns	    INTEGER ::= 255
+maxNumOfColumns	    INTEGER ::= 10000
 
 maxNumOfIndexes	    INTEGER ::= 8
 
---ProcedureCode	    ::= INTEGER (0..255)
+maxCauseLength	    INTEGER ::= 64
 
 END
