@@ -9,30 +9,25 @@ syntax = "proto3";
 message ApolloPdu {
     Version version = 1;
     int32 transaction_id = 2;
-    Procedure procedure =3;
-}
-
-message Procedure {
-    oneof procedures {
-        AuthExchange auth_exchange = 1;
-	Error error = 2;
-	Response response = 3;
-	CreateTable create_table = 4;
-	DeleteTable delete_table = 5;
-	OpenTable open_table = 6;
-	CloseTable close_table = 7;
-	TableInfo table_info = 8;
-	Read read = 9;
-	Write write = 10;
-	Delete delete = 11;
-	ReadRange read_range = 12;
-	ReadRangeN read_range_n = 13;
-	BatchWrite batch_write = 14;
-	First first = 15;
-	Last last = 16;
-	Seek seek = 17;
-	Next next = 18;
-	Prev prev = 19;
+    oneof procedure {
+	Error error = 3;
+	Response response = 4;
+	CreateTable create_table = 5;
+	DeleteTable delete_table = 6;
+	OpenTable open_table = 7;
+	CloseTable close_table = 8;
+	TableInfo table_info = 9;
+	Read read = 10;
+	Write write = 11;
+	Delete delete = 12;
+	ReadRange read_range = 13;
+	ReadRangeN read_range_n = 14;
+	BatchWrite batch_write = 15;
+	First first = 16;
+	Last last = 17;
+	Seek seek = 18;
+	Next next = 19;
+	Prev prev = 20;
     }
 }
 
@@ -65,7 +60,7 @@ message CreateTable {
 
 
 message Delete {
-    string tableName = 1;
+    string table_name = 1;
     repeated Field key = 2;
 }
 
@@ -74,7 +69,7 @@ message DeleteTable {
 }
 
 message Error {
-    oneof causes {
+    oneof cause {
 	string transport = 1;
 	string protocol = 2;
 	string system = 3;
@@ -105,22 +100,19 @@ message ReadRangeN  {
 }
 
 message Response {
-    Result result = 1;
-    bool more_data_to_be_sent = 2;
-}
-
-message Result {
-    oneof results {
-	Fields columns = 1;
-	KeyColumnsPair key_columns_pair	= 2;
-	KeyColumnsList	key_columns_list = 3;
-	Fields proplist = 4;
-	KcpIt kcpIt = 5;
+    oneof result {
+	string ok = 1;
+	Fields columns = 2;
+	KeyColumnsPair key_columns_pair	= 3;
+	KeyColumnsList	key_columns_list = 4;
+	Fields proplist = 5;
+	KcpIt kcp_it = 6;
     }
+    bool more_data_to_be_sent = 7;
 }
 
 message TableInfo {
-    string table_ame = 1;
+    string table_name = 1;
     repeated string attributes = 2;
 }
 
@@ -157,14 +149,9 @@ message Prev {
 //
 // **************************************************************
 
-message Cluster {
-    string name	=1;
-    int32 replication_factor = 2;
-}
-
 enum Comparator {
     DESCENDING = 0;
-    ASCENDIN = 1;
+    ASCENDING = 1;
 }
 
 message Continuation {
@@ -180,7 +167,18 @@ enum DataModel	{
 
 message Field {
     string name	= 1;
-    Value value = 2;
+    oneof value {
+	bool boolean = 2;
+	int32 int = 3;
+	bytes binary = 4;
+	bytes null = 5;
+	double double = 6;
+	string string = 7;
+    }
+}
+
+message FieldNames {
+    repeated string field_names = 1;
 }
 
 message Fields {
@@ -202,14 +200,8 @@ message KcpIt {
     bytes it = 2;
 }
 
-message SizeMargin {
-    oneof units {
-	int32 megabytes = 1;
-    }
-}
-
 message TableOption {
-    oneof options {
+    oneof opt {
 	Type type = 1;
 	DataModel data_model = 2;
 	Wrapper	wrapper = 3;
@@ -217,14 +209,9 @@ message TableOption {
 	Comparator comparator = 5;
 	bool time_series = 6;
 	int32 shards = 7;
-    }
-}
-
-message TimeMargin {
-    oneof units {
-	int32 seconds = 1;
-	int32 minutes = 2;
-	int32 hours = 3;
+	bool distributed = 8;
+	int32 replication_factor = 9;
+	FieldNames hash_exlude = 10;
     }
 }
 
@@ -235,17 +222,6 @@ enum Type {
     MEMLEVELDBWRAPPED = 3;
 }
 
-message Value {
-    oneof values {
-	bool boolean = 1;
-	int32 int = 2;
-	bytes binary = 3;
-	bytes null = 4;
-	double double = 5;
-	string string = 6;
-    }
-}
-
 message Version {
     int32 major = 1;
     int32 minor = 2;
@@ -253,6 +229,12 @@ message Version {
 
 message Wrapper {
     int32 num_of_buckets = 1;
-    TimeMargin time_margin = 2;
-    SizeMargin size_margin = 3;
+    oneof time_margin {
+	int32 seconds = 2;
+	int32 minutes = 3;
+	int32 hours = 4;
+    }
+    oneof size_margin {
+	int32 megabytes = 5;
+    }
 }
