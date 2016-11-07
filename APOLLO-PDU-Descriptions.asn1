@@ -18,7 +18,6 @@ APOLLO-PDU	    ::= SEQUENCE {
 }
 
 Procedure	    ::= CHOICE {
-    authExchange	AuthExchange,
     error		Error,
     response		Response,
     createTable		CreateTable,
@@ -45,11 +44,6 @@ Procedure	    ::= CHOICE {
 -- Apollo Procedure Definitions.
 --
 -- **************************************************************
-AuthExchange	    ::= SEQUENCE {
-    payload		OCTET STRING,
-    ...
-}
-
 BatchWrite	    ::= SEQUENCE {
     tableName		FieldName,
     deleteKeys		SEQUENCE OF Key,
@@ -201,12 +195,6 @@ Cause		    ::= CHOICE {
 
 }
 
-Cluster		    ::= SEQUENCE {
-    name		IA5String,
-    replicationFactor	INTEGER (1..16),
-    ...
-}
-
 Comparator	    ::= ENUMERATED {
     descending		(0),
     ascending		(1),
@@ -281,7 +269,9 @@ TableOption	    ::= CHOICE {
     comparator		Comparator,
     timeSeries		BOOLEAN,
     shards		INTEGER (1..8192),
-    clusters		SET OF Cluster (SIZE(1..16)),
+    distributed		BOOLEAN,
+    replication_factor	INTEGER,
+    hash_exclude	SEQUENCE OF FieldName,
     ...
 }
 
