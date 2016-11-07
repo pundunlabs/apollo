@@ -270,8 +270,8 @@ TableOption	    ::= CHOICE {
     timeSeries		BOOLEAN,
     shards		INTEGER (1..8192),
     distributed		BOOLEAN,
-    replication_factor	INTEGER,
-    hash_exclude	SEQUENCE OF FieldName,
+    replicationFactor	INTEGER,
+    hashExclude		SEQUENCE OF FieldName,
     ...
 }
 
