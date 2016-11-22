@@ -37,9 +37,6 @@ message ApolloPdu {
 // Apollo Procedure Definitions.
 //
 // **************************************************************
-message AuthExchange {
-    bytes payload = 1;
-}
 
 message BatchWrite {
     string table_name = 1;
