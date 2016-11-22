@@ -27,6 +27,7 @@ Procedure	    ::= CHOICE {
     tableInfo		TableInfo,
     read		Read,
     write		Write,
+    update		Update,
     delete		Delete,
     readRange		ReadRange,
     readRangeN		ReadRangeN,
@@ -59,13 +60,10 @@ CloseTable	    ::= SEQUENCE {
 CreateTable	    ::= SEQUENCE {
     tableName		FieldName,
     keys		SEQUENCE OF FieldName,
-    columns		SEQUENCE OF FieldName,
-    indexes		SEQUENCE OF FieldName,
     tableOptions	SET OF TableOption,
     ...
 
 }
-
 
 Delete		    ::= SEQUENCE {
     tableName		FieldName,
@@ -147,6 +145,14 @@ Write		    ::= SEQUENCE {
 
 }
 
+Update		    ::= SEQUENCE {
+    tableName		FieldName,
+    key			Key,
+    updateOperations	SEQUENCE OF UpdateOperation,
+    ...
+
+}
+
 First		    ::= SEQUENCE {
     tableName		FieldName,
     ...
@@ -208,9 +214,9 @@ Continuation	    ::= SEQUENCE {
 }
 
 DataModel	    ::= ENUMERATED {
-    binary		(0),
+    kv			(0),
     array		(1),
-    hash	    	(2),
+    map			(2),
     ...
 
 }
@@ -289,6 +295,27 @@ Type		    ::= ENUMERATED {
     etsLeveldbWrapped	(3),
     ...
 
+}
+
+InstructionType	    ::= ENUMERATED {
+    increment		(0),
+    overwrite		(1),
+    ...
+}
+
+UpdateInstruction   ::= SEQUENCE {
+    instruction		InstructionType,
+    treshold		INTEGER OPTIONAL,
+    setValue		INTEGER OPTIONAL,
+    ...
+}
+
+UpdateOperation	    ::= SEQUENCE {
+    field		FieldName,
+    updateInstruction	UpdateInstruction,
+    value		Value,
+    defaultValue	Value OPTIONAL,
+    ...
 }
 
 Value		    ::= CHOICE {

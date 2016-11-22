@@ -19,15 +19,16 @@ message ApolloPdu {
 	TableInfo table_info = 9;
 	Read read = 10;
 	Write write = 11;
-	Delete delete = 12;
-	ReadRange read_range = 13;
-	ReadRangeN read_range_n = 14;
-	BatchWrite batch_write = 15;
-	First first = 16;
-	Last last = 17;
-	Seek seek = 18;
-	Next next = 19;
-	Prev prev = 20;
+	Update update = 12;
+	Delete delete = 13;
+	ReadRange read_range = 14;
+	ReadRangeN read_range_n = 15;
+	BatchWrite batch_write = 16;
+	First first = 17;
+	Last last = 18;
+	Seek seek = 19;
+	Next next = 20;
+	Prev prev = 21;
     }
 }
 
@@ -53,11 +54,8 @@ message CloseTable {
 message CreateTable {
     string table_name = 1;
     repeated string keys = 2;
-    repeated string columns = 3;
-    repeated string indexes = 4;
-    repeated TableOption table_options = 5;
+    repeated TableOption table_options = 3;
 }
-
 
 message Delete {
     string table_name = 1;
@@ -116,6 +114,12 @@ message TableInfo {
     repeated string attributes = 2;
 }
 
+message Update {
+    string table_name = 1;
+    repeated Field key = 2;
+    repeated UpdateOperation update_operation = 3;
+}
+
 message Write {
     string table_name = 1;
     repeated Field key = 2;
@@ -160,9 +164,9 @@ message Continuation {
 }
 
 enum DataModel	{
-    BINARY = 0;
+    KV = 0;
     ARRAY = 1;
-    HASH = 2;
+    MAP = 2;
 }
 
 message Field {
@@ -220,6 +224,34 @@ enum Type {
     MEMLEVELDB = 1;
     LEVELDBWRAPPED = 2;
     MEMLEVELDBWRAPPED = 3;
+}
+
+message UpdateInstruction {
+    enum Instruction {
+	INCREMENT = 0;
+	OVERWRITE = 7;
+    }
+    Instruction instruction = 8;
+    int32 treshold = 14;
+    int32 set_value = 15;
+}
+
+message UpdateOperation {
+    string field = 1;
+    UpdateInstruction update_instruction = 2;
+    Value value = 3;
+    Value default_value  = 4;
+}
+
+message Value {
+    oneof value {
+	bool boolean = 1;
+	int32 int = 2;
+	bytes binary = 3;
+	bytes null = 4;
+	double double = 5;
+	string string = 6;
+    }
 }
 
 message Version {
