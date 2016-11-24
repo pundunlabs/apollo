@@ -37,6 +37,9 @@ message ApolloPdu {
 // Apollo Procedure Definitions.
 //
 // **************************************************************
+message AuthExchange {
+    bytes payload = 1;
+}
 
 message BatchWrite {
     string table_name = 1;
@@ -229,8 +232,10 @@ message UpdateInstruction {
 	OVERWRITE = 7;
     }
     Instruction instruction = 8;
-    int32 treshold = 14;
-    int32 set_value = 15;
+    // empty bytes denote nil. proto3 defaults to 0 for numeric values
+    // thus, we use bytes to distinguish if 0 is explictly set.
+    bytes treshold = 14; // encoded big endian uint32
+    bytes set_value = 15; // encoded big endian uint32
 }
 
 message UpdateOperation {
