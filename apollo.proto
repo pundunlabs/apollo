@@ -173,7 +173,7 @@ message Field {
     string name	= 1;
     oneof value {
 	bool boolean = 2;
-	int32 int = 3;
+	int64 int = 3;
 	bytes binary = 4;
 	bytes null = 5;
 	double double = 6;
@@ -187,6 +187,13 @@ message FieldNames {
 
 message Fields {
     repeated Field fields = 1;
+}
+
+enum HashingMethod {
+    VIRTUALNODES = 0;
+    CONSISTENT = 1;
+    UNIFORM = 2;
+    RENDEZVOUS = 3;
 }
 
 message KeyColumnsPair {
@@ -210,13 +217,33 @@ message TableOption {
 	DataModel data_model = 2;
 	Wrapper	wrapper = 3;
 	Wrapper	mem_wrapper = 4;
-	Comparator comparator = 5;
-	bool time_series = 6;
-	int32 shards = 7;
-	bool distributed = 8;
-	int32 replication_factor = 9;
-	FieldNames hash_exlude = 10;
+	Tda tda = 5;
+	Comparator comparator = 6;
+	bool time_series = 7;
+	int32 shards = 8;
+	bool distributed = 9;
+	int32 replication_factor = 10;
+	FieldNames hash_exlude = 11;
+	HashingMethod hashing_method = 12;
     }
+}
+
+message Tda {
+    int32 num_of_buckets = 1;
+    oneof time_margin {
+	int32 seconds = 2;
+	int32 minutes = 3;
+	int32 hours = 4;
+    }
+    string ts_field = 5;
+    TimeUnit precision = 6;
+}
+
+enum TimeUnit {
+    SECOND = 0;
+    MILLISECOND = 1;
+    MICROSECOND = 2;
+    NANOSECOND = 3;
 }
 
 enum Type {
@@ -224,6 +251,8 @@ enum Type {
     MEMLEVELDB = 1;
     LEVELDBWRAPPED = 2;
     MEMLEVELDBWRAPPED = 3;
+    LEVELDBTDA = 4;
+    MEMLEVELDBTDA = 5;
 }
 
 message UpdateInstruction {
@@ -248,7 +277,7 @@ message UpdateOperation {
 message Value {
     oneof value {
 	bool boolean = 1;
-	int32 int = 2;
+	int64 int = 2;
 	bytes binary = 3;
 	bytes null = 4;
 	double double = 5;
@@ -270,5 +299,6 @@ message Wrapper {
     }
     oneof size_margin {
 	int32 megabytes = 5;
+	int32 gigabytes = 6;
     }
 }
