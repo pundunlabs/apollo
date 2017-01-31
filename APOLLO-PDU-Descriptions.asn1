@@ -305,7 +305,7 @@ InstructionType	    ::= ENUMERATED {
 
 UpdateInstruction   ::= SEQUENCE {
     instruction		InstructionType,
-    treshold		INTEGER OPTIONAL,
+    threshold		INTEGER OPTIONAL,
     setValue		INTEGER OPTIONAL,
     ...
 }
