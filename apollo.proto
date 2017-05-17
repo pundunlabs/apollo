@@ -244,7 +244,7 @@ message TableOption {
 	uint32 replication_factor = 10;
 	FieldNames hash_exlude = 11;
 	HashingMethod hashing_method = 12;
-	unint32 ttl = 13;
+	uint32 ttl = 13;
     }
 }
 
