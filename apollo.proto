@@ -239,11 +239,12 @@ message TableOption {
 	Tda tda = 5;
 	Comparator comparator = 6;
 	bool time_series = 7;
-	uint32 shards = 8;
+	uint32 num_of_shards = 8;
 	bool distributed = 9;
 	uint32 replication_factor = 10;
 	FieldNames hash_exlude = 11;
 	HashingMethod hashing_method = 12;
+	unint32 ttl = 13;
     }
 }
 
@@ -272,6 +273,7 @@ enum Type {
     MEMLEVELDBWRAPPED = 3;
     LEVELDBTDA = 4;
     MEMLEVELDBTDA = 5;
+    ROCKSDB = 6;
 }
 
 message UpdateInstruction {
