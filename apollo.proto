@@ -40,10 +40,6 @@ message ApolloPdu {
 // Apollo Procedure Definitions.
 //
 // **************************************************************
-message AuthExchange {
-    bytes payload = 1;
-}
-
 message BatchWrite {
     string table_name = 1;
     repeated Field delete_keys = 2;
@@ -152,7 +148,7 @@ message Prev {
 
 message AddIndex {
     string table_name  = 1;
-    repeated string columns  = 2;
+    repeated IndexConfig config  = 2;
 }
 
 message RemoveIndex {
@@ -171,6 +167,12 @@ message IndexRead {
 // Common IE Definitions.
 //
 // **************************************************************
+enum CharFilter {
+    NFC = 0;
+    NFD = 1;
+    NFKC = 2;
+    NFKD = 3;  
+}
 
 enum Comparator {
     DESCENDING = 0;
@@ -213,6 +215,17 @@ enum HashingMethod {
     CONSISTENT = 1;
     UNIFORM = 2;
     RENDEZVOUS = 3;
+}
+
+message IndexConfig {
+    string column = 1;
+    IndexOptions options = 2;
+}
+
+message IndexOptions {
+    CharFilter char_filter = 1;
+    Tokenizer tokenizer = 2;
+    TokenFilter token_filter = 3;
 }
 
 message KeyColumnsPair {
@@ -264,6 +277,30 @@ enum TimeUnit {
     MILLISECOND = 1;
     MICROSECOND = 2;
     NANOSECOND = 3;
+}
+
+message TokenFilter {
+    TokenTransform transform = 1;
+    repeated string add = 2;
+    repeated string delete = 3;
+    TokenStats stats = 4;
+}
+
+enum Tokenizer {
+    UNICODE_WORD_BOUNDARIES = 0;
+}
+
+enum TokenStats {
+    NOSTATS = 0;
+    UNIQUE = 1;
+    FREQUENCY = 2;
+    POSITION = 3;
+}
+
+enum TokenTransform {
+    LOWERCASE = 0;
+    UPPERCASE = 1;
+    CASEFOLD = 2;
 }
 
 enum Type {
