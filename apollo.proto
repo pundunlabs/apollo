@@ -171,7 +171,7 @@ enum CharFilter {
     NFC = 0;
     NFD = 1;
     NFKC = 2;
-    NFKD = 3;  
+    NFKD = 3;
 }
 
 enum Comparator {
