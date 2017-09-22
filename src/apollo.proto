@@ -104,7 +104,7 @@ message Response {
 	KeyColumnsList	key_columns_list = 4;
 	Fields proplist = 5;
 	KcpIt kcp_it = 6;
-	Keys keys = 7;
+	Postings postings = 7;
     }
     bool more_data_to_be_sent = 7;
 }
@@ -240,8 +240,15 @@ message KeyColumnsList {
     Continuation continuation = 2;
 }
 
-message Keys {
-    repeated Fields keys = 1;
+message Posting {
+    repeated Field key = 1;
+    uint32 timestamp = 2;
+    uint32 frequency = 3;
+    uint32 position = 4;
+}
+
+message Postings {
+    repeated Posting list = 1;
 }
 
 message KcpIt {
