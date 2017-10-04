@@ -106,7 +106,7 @@ message Response {
 	KcpIt kcp_it = 6;
 	Postings postings = 7;
     }
-    bool more_data_to_be_sent = 7;
+    bool more_data_to_be_sent = 8;
 }
 
 message TableInfo {
