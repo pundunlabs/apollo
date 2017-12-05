@@ -32,6 +32,7 @@ message ApolloPdu {
 	AddIndex add_index = 22;
 	RemoveIndex remove_index = 23;
 	IndexRead index_read = 24;
+	ListTables list_tables = 25;
     }
 }
 
@@ -105,8 +106,9 @@ message Response {
 	Fields proplist = 5;
 	KcpIt kcp_it = 6;
 	Postings postings = 7;
+	FieldNames string_list = 8;
     }
-    bool more_data_to_be_sent = 8;
+    bool more_data_to_be_sent = 9;
 }
 
 message TableInfo {
@@ -162,6 +164,9 @@ message IndexRead {
     string column_name	= 2;
     string term		= 3;
     PostingFilter filter = 4;
+}
+
+message ListTables {
 }
 
 // **************************************************************
