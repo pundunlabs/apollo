@@ -258,8 +258,10 @@ message Postings {
 
 message PostingFilter {
     SortBy sort_by = 1;
-    uint32 start_ts = 2;
-    uint32 end_ts = 3;
+    // empty bytes denote nil. proto3 defaults to 0 for numeric values
+    // thus, we use bytes to distinguish if 0 is explictly set.
+    bytes start_ts = 2; // encoded big endian uint32
+    bytes end_ts = 3; // encoded big endian uint32
     uint32 max_postings = 4;
 }
 
