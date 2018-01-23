@@ -199,14 +199,7 @@ enum DataModel	{
 
 message Field {
     string name	= 1;
-    oneof value {
-	bool boolean = 2;
-	int64 int = 3;
-	bytes binary = 4;
-	bytes null = 5;
-	double double = 6;
-	string string = 7;
-    }
+    Value value = 2;
 }
 
 message FieldNames {
@@ -268,6 +261,14 @@ message PostingFilter {
 message KcpIt {
     KeyColumnsPair  key_columns_pair = 1;
     bytes it = 2;
+}
+
+message ListValue {
+    repeated Value values = 1;
+}
+
+message MapValue {
+    map<string, Value> values = 1;
 }
 
 enum SortBy {
@@ -365,13 +366,15 @@ message UpdateOperation {
 }
 
 message Value {
-    oneof value {
+    oneof type {
 	bool boolean = 1;
 	int64 int = 2;
 	bytes binary = 3;
 	bytes null = 4;
 	double double = 5;
 	string string = 6;
+	ListValue list = 7;
+	MapValue map = 8;
     }
 }
 
