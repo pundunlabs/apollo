@@ -33,6 +33,7 @@ message ApolloPdu {
 	RemoveIndex remove_index = 23;
 	IndexRead index_read = 24;
 	ListTables list_tables = 25;
+	ReadRangeNTs read_range_n_ts = 26;
     }
 }
 
@@ -92,6 +93,12 @@ message ReadRange {
 }
 
 message ReadRangeN  {
+    string table_name = 1;
+    repeated Field start_key = 2;
+    uint32 n = 3;
+}
+
+message ReadRangeNTs  {
     string table_name = 1;
     repeated Field start_key = 2;
     uint32 n = 3;
