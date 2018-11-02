@@ -34,6 +34,7 @@ message ApolloPdu {
 	IndexRead index_read = 24;
 	ListTables list_tables = 25;
 	ReadRangeNTs read_range_n_ts = 26;
+	AuthExchange auth_exchange = 27;
     }
 }
 
@@ -42,6 +43,10 @@ message ApolloPdu {
 // Apollo Procedure Definitions.
 //
 // **************************************************************
+message AuthExchange {
+    bytes payload = 1;
+}
+
 message BatchWrite {
     string table_name = 1;
     repeated Field delete_keys = 2;
@@ -149,7 +154,7 @@ message Seek {
 }
 
 message Next {
-    bytes it =1;
+    bytes it = 1;
 }
 
 message Prev {
@@ -195,7 +200,7 @@ enum Comparator {
 
 message Continuation {
     bool complete = 1;
-    repeated Field key	= 2;
+    repeated Field key = 2;
 }
 
 enum DataModel	{
